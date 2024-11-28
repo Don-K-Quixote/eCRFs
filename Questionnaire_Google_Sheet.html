@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Software Requirements Specification (SRS) Template</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            line-height: 1.6;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+        h1 {
+            color: #0056b3;
+            border-bottom: 2px solid #0056b3;
+            padding-bottom: 10px;
+        }
+        input, select, textarea, button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        textarea {
+            height: 100px;
+        }
+        button {
+            background-color: #0056b3;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #004080;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .loader {
+            display: none;
+            margin: 20px auto;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #0056b3;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .error-message {
+            color: red;
+            font-size: 0.9em;
+            margin-top: -10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Software Requirements Specification (SRS) Template</h1>
+        <form id="srsForm">
+            <h2>1. Document Overview</h2>
+            <p>Project Name: <input type="text" name="projectName"><span class="error-message" id="error-projectName"></span></p>
+            <p>Document File Name: <input type="text" name="documentFileName"></p>
+            <p>Document Revision: <input type="text" name="documentRevision"></p>
+            <p>Revision Date: <input type="date" name="revisionDate"><span class="error-message" id="error-revisionDate"></span></p>
+            <p>Author Name(s): <input type="text" name="authorNames"></p>
+
+            <h2>2. Purpose and Scope</h2>
+            <p>Purpose: <textarea name="purpose"></textarea></p>
+            <p>Scope: <textarea name="scope"></textarea></p>
+
+            <h2>3. Field Listings for Display and Data Capture</h2>
+            <p>Patient Identifier: <input type="text" name="patientIdentifier"><span class="error-message" id="error-patientIdentifier"></span></p>
+            <p>Study Visit: 
+                <select name="studyVisit">
+                    <option value="">-- Select --</option>
+                    <option value="Baseline">Baseline</option>
+                    <option value="Timepoint 2">Timepoint 2</option>
+                    <option value="Timepoint 3">Timepoint 3</option>
+                </select><span class="error-message" id="error-studyVisit"></span>
+            </p>
+
+            <h2>4. Measured/Target Lesions</h2>
+            <p>Type of Measured Lesion:
+                <select name="measuredLesionType" id="measuredLesionType">
+                    <option value="">-- Select --</option>
+                    <option value="Nodal">Nodal</option>
+                    <option value="Non-Nodal">Non-Nodal</option>
+                </select><span class="error-message" id="error-measuredLesionType"></span>
+            </p>
+            <!-- <p id="lymphNodeSize" class="conditional" style="display: none;">Lymph Node Size (mm): <input type="number" name="lymphNodeSize"></p> -->
+            <p id="lymphNodeSize" class="conditional" style="display: none;">Lymph Node Size (mm): <input type="text" name="lymphNodeSize"></p>
+
+
+            <h2>5. Overall Assessment</h2>
+            <p>Overall Tumor Response Assessment:
+                <select name="overallResponse" id="overallResponse">
+                    <option value="">-- Select --</option>
+                    <option value="CR">Complete Response</option>
+                    <option value="PR">Partial Response</option>
+                    <option value="SD">Stable Disease</option>
+                    <option value="PD">Progressive Disease</option>
+                    <option value="NE">Not Evaluable</option>
+                </select><span class="error-message" id="error-overallResponse"></span>
+            </p>
+            <p id="progressionDate" class="conditional" style="display: none;">Progression Date: <input type="date" name="progressionDate"></p>
+            <p>Assessment Comments: <textarea name="assessmentComments"></textarea></p>
+
+            <button type="submit">Submit</button>
+        </form>
+        <div class="loader" id="loader"></div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const measuredLesionType = document.getElementById('measuredLesionType');
+            const lymphNodeSize = document.getElementById('lymphNodeSize');
+
+            if (measuredLesionType && lymphNodeSize) {
+                measuredLesionType.addEventListener('change', function () {
+                    if (this.value === 'Nodal') {
+                        lymphNodeSize.style.display = 'block';
+                    } else {
+                        lymphNodeSize.style.display = 'none';
+                    }
+                });
+            }
+
+            const overallResponse = document.getElementById('overallResponse');
+            const progressionDate = document.getElementById('progressionDate');
+
+            if (overallResponse && progressionDate) {
+                overallResponse.addEventListener('change', function () {
+                    if (this.value === 'PD') {
+                        progressionDate.style.display = 'block';
+                    } else {
+                        progressionDate.style.display = 'none';
+                    }
+                });
+            }
+        });
+
+        const url = "https://script.google.com/macros/s/AKfycbysaUwu8yaLnRF_RSt4HurySeJ_Ng3Mnels1Y1HK-tRYKto4kasZI34oe47mIw14GfQyA/exec";
+
+        document.querySelector('#srsForm').addEventListener('submit', async (e) => {
+            e.preventDefault(); 
+
+            const loader = document.getElementById('loader');
+            loader.style.display = 'block';
+
+            const form = document.querySelector('#srsForm');
+            let isValid = true;
+
+            const validateField = (field, errorId, errorMessage) => {
+                const value = field.value.trim();
+                if (!value) {
+                    isValid = false;
+                    document.getElementById(errorId).textContent = errorMessage;
+                } else {
+                    document.getElementById(errorId).textContent = "";
+                }
+            };
+
+            validateField(form.projectName, 'error-projectName', 'Project Name is required.');
+            validateField(form.revisionDate, 'error-revisionDate', 'Revision Date is required.');
+            validateField(form.patientIdentifier, 'error-patientIdentifier', 'Patient Identifier is required.');
+            validateField(form.studyVisit, 'error-studyVisit', 'Please select a study visit.');
+            validateField(form.measuredLesionType, 'error-measuredLesionType', 'Please select a measured lesion type.');
+            validateField(form.overallResponse, 'error-overallResponse', 'Please select an overall response.');
+
+            if (!isValid) {
+                loader.style.display = 'none';
+                return;
+            }
+
+            const formData = new FormData(form);
+
+            try {
+                const response = await fetch(url, {
+                    method: "POST",
+                    body: formData,
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+
+                const result = await response.text();
+                console.log("Form submission response:", result);
+                alert("Form submitted successfully!");
+
+                form.reset();
+            } catch (error) {
+                console.error("Error submitting form:", error);
+                alert("Failed to submit the form.");
+            } finally {
+                loader.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
